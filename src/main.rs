@@ -3,7 +3,7 @@ use anyhow::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let ssh_cli = client::Client::new("10.10.68.177", 22, "bore.czyt.tech", 0, Some("rustean")).await?;
+    let ssh_cli = client::Client::new("10.10.68.177", 22, "rustdesk.ntsports.tech", 0, Some("hm#CD888")).await?;
     println!("cli get port:{}", ssh_cli.remote_port());
     // start a thread to run client
     let ssh_forward = tokio::spawn(
@@ -21,7 +21,7 @@ mod forward_test {
 
     #[tokio::test]
     async fn create_bore_client() -> Result<()> {
-        let cli = client::Client::new("10.10.68.177", 22, "bore.czyt.tech", 0, Some("rustean")).await?;
+        let cli = client::Client::new("10.10.68.177", 22, "rustdesk.ntsports.tech", 0, Some("hm#CD888")).await?;
         println!("cli get port:{}", cli.remote_port());
         Ok(())
     }
