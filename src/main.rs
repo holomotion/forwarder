@@ -2,7 +2,7 @@ mod reporter;
 
 use bore_cli::client;
 use anyhow::Result;
-use mac_address::get_mac_address;
+use mac_address::{get_mac_address, MacAddressIterator};
 use crate::reporter::{ForwardEntry, ForwardInfo};
 
 
@@ -16,6 +16,11 @@ async fn main() -> Result<()> {
     if let Some(mac_address) = mac_address_result {
         let ssh_cli = client::Client::new(LOCALHOST, 22, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
         let cockpit_cli = client::Client::new(LOCALHOST, 9090, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
+        let mut all_mac_addresses: Vec<String> = Vec::new();
+        let all_mac_address_iter = MacAddressIterator::new()?;
+        for mac_addr in all_mac_address_iter {
+            all_mac_addresses.push(mac_addr.to_string())
+        }
         // create forward info
         let forward_info = &ForwardInfo {
             mac_address: mac_address.to_string(),
@@ -31,6 +36,7 @@ async fn main() -> Result<()> {
                     remote_port: cockpit_cli.remote_port(),
                 },
             ],
+            all_mac_addresses,
         };
         forward_info.report().await?;
 
@@ -52,7 +58,7 @@ async fn main() -> Result<()> {
 mod forward_test {
     use bore_cli::client;
     use anyhow::Result;
-    use mac_address::get_mac_address;
+    use mac_address::{get_mac_address, MacAddressIterator};
 
     #[tokio::test]
     async fn create_bore_client() -> Result<()> {
@@ -66,6 +72,15 @@ mod forward_test {
         let addr = get_mac_address()?;
         if let Some(mac) = addr {
             println!("mac addr is {}", mac.to_string())
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn get_all_mac_addresses() -> Result<()> {
+        let mac_iter = MacAddressIterator::new()?;
+        for mac in mac_iter {
+            println!("the mac addr is  {}", mac.to_string())
         }
         Ok(())
     }

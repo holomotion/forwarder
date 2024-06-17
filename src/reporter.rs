@@ -15,6 +15,7 @@ pub struct ForwardEntry {
 pub struct ForwardInfo {
     pub mac_address: String,
     pub forward_entries: Vec<ForwardEntry>,
+    pub all_mac_addresses:Vec<String>,
 }
 
 impl ForwardInfo{
