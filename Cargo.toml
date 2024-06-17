@@ -5,9 +5,13 @@ edition = "2021"
 
 [dependencies]
 bore-cli = "0.5.1"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }
 anyhow = {version = "1"}
 mac_address={version = "1"}
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 reqwest= { version = "0.12", features = ["json"] }
+
+[target.'cfg(target_family = "unix")'.dependencies.openssl]
+version = "0.10"
+features = ["vendored"]
