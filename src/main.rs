@@ -21,21 +21,18 @@ async fn main() -> Result<()> {
             mac_address: mac_address.to_string(),
             forward_entries: vec![
                 ForwardEntry {
-                    local_host: LOCALHOST,
+                    local_host: LOCALHOST.parse()?,
                     local_port: 22,
                     remote_port: ssh_cli.remote_port(),
                 },
                 ForwardEntry {
-                    local_host: LOCALHOST,
+                    local_host: LOCALHOST.parse()?,
                     local_port: 9090,
                     remote_port: cockpit_cli.remote_port(),
                 },
             ],
         };
-
-        let report_forward = tokio::spawn(
-            forward_info.report()
-        );
+        forward_info.report().await?;
 
         let ssh_forward = tokio::spawn(
             ssh_cli.listen()
@@ -44,7 +41,6 @@ async fn main() -> Result<()> {
             cockpit_cli.listen()
         );
         _ = tokio::join!(
-            report_forward,
             ssh_forward,
             cockpit_forward,
         );
