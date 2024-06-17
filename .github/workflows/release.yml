@@ -60,12 +60,12 @@ jobs:
           toolchain: 1.75
           default: true
 
-      - name: Install OpenSSL
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install pkg-config libssl-dev
-      - name: Install OpenSSL
-        if: matrix.os == 'macos-latest'
-        run: brew install openssl@3
+#      - name: Install OpenSSL
+#        if: matrix.os == 'ubuntu-latest'
+#        run: sudo apt-get install pkg-config libssl-dev
+#      - name: Install OpenSSL
+#        if: matrix.os == 'macos-latest'
+#        run: brew install openssl@3
 
       # Native build
       - name: Install target
