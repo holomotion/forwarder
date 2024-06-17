@@ -1,4 +1,4 @@
-name: Release Forward
+name: Release forwarder
 on:
   push:
     tags:
@@ -18,37 +18,37 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            exe: forward
+            exe: forwarder
             cross: false
 
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            exe: forward
+            exe: forwarder
             cross: true
 
           - os: ubuntu-latest
             target: arm-unknown-linux-musleabi
-            exe: forward
+            exe: forwarder
             cross: true
 
           - os: ubuntu-latest
             target: arm-unknown-linux-musleabihf
-            exe: forward
+            exe: forwarder
             cross: true
 
           - os: ubuntu-latest
             target: armv7-unknown-linux-musleabihf
-            exe: forward
+            exe: forwarder
             cross: true
 
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            exe: forward.exe
+            exe: forwarder.exe
             cross: false
 
           - os: macos-latest
             target: x86_64-apple-darwin
-            exe: forward
+            exe: forwarder
             cross: false
 
     steps:
@@ -101,19 +101,19 @@ jobs:
           args: -q --best --lzma
       - uses: actions/upload-artifact@v2
         with:
-          name: forward-${{ matrix.target }}
+          name: forwarder-${{ matrix.target }}
           path: target/${{ matrix.target }}/release/${{ matrix.exe }}
       - name: Zip Release
         uses: TheDoctor0/zip-release@0.6.1
         with:
           type: zip
-          filename: forward-${{ matrix.target }}.zip
+          filename: forwarder-${{ matrix.target }}.zip
           directory: target/${{ matrix.target }}/release/
           path: ${{ matrix.exe }}
       - name: Publish
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: target/${{ matrix.target }}/release/forward-${{ matrix.target }}.zip
+          files: target/${{ matrix.target }}/release/forwarder-${{ matrix.target }}.zip
           generate_release_notes: true
           draft: true
