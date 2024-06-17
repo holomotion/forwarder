@@ -9,6 +9,7 @@ use crate::reporter::{ForwardEntry, ForwardInfo};
 const LOCALHOST: &str = "localhost";
 const FORWARD_SERVER: &str = "rustdesk.ntsports.tech";
 const FORWARD_SECRET: &str = "hm#CD888";
+const NIL_MAC_ADDRESS:&str =  "00:00:00:00:00:00";
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -16,11 +17,8 @@ async fn main() -> Result<()> {
     if let Some(mac_address) = mac_address_result {
         let ssh_cli = client::Client::new(LOCALHOST, 22, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
         let cockpit_cli = client::Client::new(LOCALHOST, 9090, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
-        let mut all_mac_addresses: Vec<String> = Vec::new();
         let all_mac_address_iter = MacAddressIterator::new()?;
-        for mac_addr in all_mac_address_iter {
-            all_mac_addresses.push(mac_addr.to_string())
-        }
+        let all_mac_addresses = all_mac_address_iter.filter(|ma| ma.to_string() != NIL_MAC_ADDRESS).map(|ma| ma.to_string()).collect();
         // create forward info
         let forward_info = &ForwardInfo {
             mac_address: mac_address.to_string(),
@@ -60,6 +58,8 @@ mod forward_test {
     use anyhow::Result;
     use mac_address::{get_mac_address, MacAddressIterator};
 
+    #[warn(dead_code)]
+    const NIL_MAC_ADDRESS:&str =  "00:00:00:00:00:00";
     #[tokio::test]
     async fn create_bore_client() -> Result<()> {
         let cli = client::Client::new("10.10.68.177", 22, "rustdesk.ntsports.tech", 0, Some("hm#CD888")).await?;
@@ -79,9 +79,8 @@ mod forward_test {
     #[test]
     fn get_all_mac_addresses() -> Result<()> {
         let mac_iter = MacAddressIterator::new()?;
-        for mac in mac_iter {
-            println!("the mac addr is  {}", mac.to_string())
-        }
+        let all_mac_addresses:Vec<String> = mac_iter.filter(|ma| ma.to_string() != NIL_MAC_ADDRESS).map(|ma| ma.to_string()).collect();
+        println!("mac address:{:?}",all_mac_addresses);
         Ok(())
     }
 }
