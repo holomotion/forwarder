@@ -1,9 +1,11 @@
 mod reporter;
 
+use std::time::Duration;
 use bore_cli::client;
 use self_github_update::{cargo_crate_version, backends::github};
 use anyhow::Result;
 use mac_address::{get_mac_address, MacAddressIterator};
+use tokio::time::timeout;
 use crate::reporter::{ForwardEntry, ForwardInfo};
 
 
@@ -14,7 +16,6 @@ const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    check_update();
     let mac_address_result = get_mac_address()?;
     if let Some(mac_address) = mac_address_result {
         let ssh_cli = client::Client::new(LOCALHOST, 22, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
@@ -41,6 +42,9 @@ async fn main() -> Result<()> {
         };
         forward_info.report().await?;
 
+        let check_update = tokio::spawn(
+            timeout(Duration::from_secs(300),  check_update())
+        );
         let ssh_forward = tokio::spawn(
             ssh_cli.listen()
         );
@@ -50,12 +54,13 @@ async fn main() -> Result<()> {
         _ = tokio::join!(
             ssh_forward,
             cockpit_forward,
+            check_update,
         );
     }
     Ok(())
 }
 
-fn check_update()->Result<()> {
+async fn  check_update()->Result<()> {
     let check_update = github::Update::configure()
         .repo_owner("holomotion")
         .repo_name("forwarder-publish")
