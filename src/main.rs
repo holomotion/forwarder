@@ -1,13 +1,14 @@
-mod reporter;
-
 use std::time::Duration;
-use bore_cli::client;
-use self_github_update::{cargo_crate_version, backends::github};
+
 use anyhow::Result;
+use bore_cli::client;
 use mac_address::{get_mac_address, MacAddressIterator};
+use self_github_update::{backends::github, cargo_crate_version};
 use tokio::time::timeout;
+
 use crate::reporter::{ForwardEntry, ForwardInfo};
 
+mod reporter;
 
 const LOCALHOST: &str = "localhost";
 const FORWARD_SERVER: &str = "rustdesk.ntsports.tech";
@@ -64,7 +65,6 @@ async fn  check_update()->Result<()> {
     let check_update = github::Update::configure()
         .repo_owner("holomotion")
         .repo_name("forwarder-publish")
-        .bin_name("forwarder")
         .show_download_progress(true)
         .current_version(cargo_crate_version!())
         .build();
@@ -83,10 +83,9 @@ async fn  check_update()->Result<()> {
 
 #[cfg(test)]
 mod forward_test {
-    use bore_cli::client;
     use anyhow::Result;
+    use bore_cli::client;
     use mac_address::{get_mac_address, MacAddressIterator};
-    use self_github_update::cargo_crate_version;
 
     #[warn(dead_code)]
     const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
