@@ -65,6 +65,7 @@ async fn  check_update()->Result<()> {
     let check_update = github::Update::configure()
         .repo_owner("holomotion")
         .repo_name("forwarder")
+        .bin_name("forwarder")
         .show_download_progress(true)
         .current_version(cargo_crate_version!())
         .build();
