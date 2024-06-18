@@ -55,14 +55,15 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn check_update() {
-    match github::Update::configure()
+fn check_update()->Result<()> {
+    let check_update = github::Update::configure()
         .repo_owner("holomotion")
         .repo_name("forwarder-publish")
         .bin_name("forwarder")
         .show_download_progress(true)
         .current_version(cargo_crate_version!())
-        .build() {
+        .build();
+    match check_update {
         Ok(update) => {
             if let Err(e) = update.update() {
                 eprintln!("update failed: {:?}", e);
@@ -72,6 +73,7 @@ fn check_update() {
             eprintln!("check update failed: {:?}", e);
         }
     }
+    Ok(())
 }
 
 #[cfg(test)]
