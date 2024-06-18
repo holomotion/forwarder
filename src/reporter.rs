@@ -13,6 +13,7 @@ pub struct ForwardEntry {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ForwardInfo {
+    pub app_version:String,
     pub mac_address: String,
     pub forward_entries: Vec<ForwardEntry>,
     pub all_mac_addresses:Vec<String>,
