@@ -14,22 +14,7 @@ const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    match github::Update::configure()
-        .repo_owner("holomotion")
-        .repo_name("forwarder-publish")
-        .bin_name("forwarder")
-        .show_download_progress(true)
-        .current_version(cargo_crate_version!())
-        .build() {
-        Ok(update) => {
-            if let Err(e) = update.update() {
-                eprintln!("update failed: {:?}", e);
-            }
-        }
-        Err(e) => {
-            eprintln!("check update failed: {:?}", e);
-        }
-    }
+    check_update();
     let mac_address_result = get_mac_address()?;
     if let Some(mac_address) = mac_address_result {
         let ssh_cli = client::Client::new(LOCALHOST, 22, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
@@ -68,6 +53,25 @@ async fn main() -> Result<()> {
         );
     }
     Ok(())
+}
+
+fn check_update() {
+    match github::Update::configure()
+        .repo_owner("holomotion")
+        .repo_name("forwarder-publish")
+        .bin_name("forwarder")
+        .show_download_progress(true)
+        .current_version(cargo_crate_version!())
+        .build() {
+        Ok(update) => {
+            if let Err(e) = update.update() {
+                eprintln!("update failed: {:?}", e);
+            }
+        }
+        Err(e) => {
+            eprintln!("check update failed: {:?}", e);
+        }
+    }
 }
 
 #[cfg(test)]
