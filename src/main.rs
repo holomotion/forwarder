@@ -1,6 +1,7 @@
 mod reporter;
 
 use bore_cli::client;
+use self_github_update::{cargo_crate_version, backends::github};
 use anyhow::Result;
 use mac_address::{get_mac_address, MacAddressIterator};
 use crate::reporter::{ForwardEntry, ForwardInfo};
@@ -9,10 +10,18 @@ use crate::reporter::{ForwardEntry, ForwardInfo};
 const LOCALHOST: &str = "localhost";
 const FORWARD_SERVER: &str = "rustdesk.ntsports.tech";
 const FORWARD_SECRET: &str = "hm#CD888";
-const NIL_MAC_ADDRESS:&str =  "00:00:00:00:00:00";
+const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    github::Update::configure()
+        .repo_owner("holomotion")
+        .repo_name("forwarder-publish")
+        .bin_name("forwarder")
+        .show_download_progress(true)
+        .current_version(cargo_crate_version!())
+        .build()?
+        .update()?;
     let mac_address_result = get_mac_address()?;
     if let Some(mac_address) = mac_address_result {
         let ssh_cli = client::Client::new(LOCALHOST, 22, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
@@ -57,9 +66,11 @@ mod forward_test {
     use bore_cli::client;
     use anyhow::Result;
     use mac_address::{get_mac_address, MacAddressIterator};
+    use self_github_update::cargo_crate_version;
 
     #[warn(dead_code)]
-    const NIL_MAC_ADDRESS:&str =  "00:00:00:00:00:00";
+    const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
+
     #[tokio::test]
     async fn create_bore_client() -> Result<()> {
         let cli = client::Client::new("10.10.68.177", 22, "rustdesk.ntsports.tech", 0, Some("hm#CD888")).await?;
@@ -79,8 +90,8 @@ mod forward_test {
     #[test]
     fn get_all_mac_addresses() -> Result<()> {
         let mac_iter = MacAddressIterator::new()?;
-        let all_mac_addresses:Vec<String> = mac_iter.filter(|ma| ma.to_string() != NIL_MAC_ADDRESS).map(|ma| ma.to_string()).collect();
-        println!("mac address:{:?}",all_mac_addresses);
+        let all_mac_addresses: Vec<String> = mac_iter.filter(|ma| ma.to_string() != NIL_MAC_ADDRESS).map(|ma| ma.to_string()).collect();
+        println!("mac address:{:?}", all_mac_addresses);
         Ok(())
     }
 }
