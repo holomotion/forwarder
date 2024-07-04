@@ -6,21 +6,22 @@ const REPORT_ENDPOINT: &str = "https://rustdesk.ntsports.tech/api/v1/forward_inf
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ForwardEntry {
-    pub local_host:String,
+    pub local_host: String,
     pub local_port: u16,
-    pub  remote_port: u16,
+    pub remote_port: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ForwardInfo {
-    pub app_version:String,
+    pub app_version: String,
     pub mac_address: String,
+    pub hostname: String,
     pub forward_entries: Vec<ForwardEntry>,
-    pub all_mac_addresses:Vec<String>,
+    pub all_mac_addresses: Vec<String>,
 }
 
-impl ForwardInfo{
-    pub async fn report(&self ) -> Result<()> {
+impl ForwardInfo {
+    pub async fn report(&self) -> Result<()> {
         let client = &Client::new();
         let user_agent = "holomotion_Forward/1.0.0 (https://holomotion.tech)";
         let content_type = "application/json";
