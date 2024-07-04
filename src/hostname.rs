@@ -26,15 +26,9 @@ pub(crate) fn get_hostname() -> io::Result<String> {
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub(crate) fn get_hostname() -> io::Result<String> {
     use nix::unistd::gethostname;
-
-    let mut buffer = [0; 256];
-    let result = gethostname(&mut buffer);
-    match result {
-        Ok(_) => Ok(String::from_utf8_lossy(&buffer).trim_end_matches(char::from(0)).to_string()),
-        Err(_err) => Err(io::Error::new(io::ErrorKind::Other,""),),
-    }
+    let result = gethostname()?;
+    Ok(result.into_string().unwrap_or("".to_string()))
 }
-
 #[cfg(test)]
 mod hostname_test {
     use super::get_hostname;
