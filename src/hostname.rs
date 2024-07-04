@@ -30,7 +30,7 @@ pub(crate) fn get_hostname() -> io::Result<String> {
     let mut buffer = [0; 256];
     let result = gethostname(&mut buffer);
     match result {
-        Ok(_) => Ok(String::from_utf8_lossy(&buffer).to_string()),
+        Ok(_) => Ok(String::from_utf8_lossy(&buffer).trim_end_matches(char::from(0)).to_string()),
         Err(_err) => Err(io::Error::new(io::ErrorKind::Other,""),),
     }
 }
