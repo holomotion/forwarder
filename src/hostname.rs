@@ -23,8 +23,7 @@ pub(crate) fn get_hostname() -> io::Result<String> {
     Ok(hostname.to_string_lossy().into_owned())
 }
 
-#[cfg(target_os = "linux" )]
-#[cfg(target_os = "macos" )]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub(crate) fn get_hostname() -> io::Result<String> {
     use nix::unistd::gethostname;
 
