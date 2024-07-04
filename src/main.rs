@@ -10,6 +10,7 @@ use crate::reporter::{ForwardEntry, ForwardInfo};
 
 mod reporter;
 mod hostname;
+mod access_id;
 
 const LOCALHOST: &str = "localhost";
 const FORWARD_SERVER: &str = "rustdesk.ntsports.tech";
@@ -28,6 +29,7 @@ async fn main() -> Result<()> {
         let forward_info = &ForwardInfo {
             app_version: cargo_crate_version!().parse()?,
             hostname: hostname::get_hostname()?,
+            access_id: access_id::get_access_id()?,
             mac_address: mac_address.to_string(),
             forward_entries: vec![
                 ForwardEntry {

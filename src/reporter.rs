@@ -16,6 +16,7 @@ pub struct ForwardInfo {
     pub app_version: String,
     pub mac_address: String,
     pub hostname: String,
+    pub access_id: String,
     pub forward_entries: Vec<ForwardEntry>,
     pub all_mac_addresses: Vec<String>,
 }
