@@ -107,7 +107,7 @@ mod forward_test {
     fn get_mac_addr() -> Result<()> {
         let addr = get_mac_address()?;
         if let Some(mac) = addr {
-            println!("mac addr is {}", mac.to_string())
+            println!("mac addr is {}", mac);
         }
         Ok(())
     }
