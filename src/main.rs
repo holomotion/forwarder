@@ -1,19 +1,21 @@
 use std::time::Duration;
 
+use crate::country::get_current_country;
+use crate::reporter::{ForwardEntry, ForwardInfo};
 use anyhow::Result;
 use bore_cli::client;
 use mac_address::{get_mac_address, MacAddressIterator};
 use self_github_update_enhanced::{backends::github, cargo_crate_version};
 use tokio::time::timeout;
 
-use crate::reporter::{ForwardEntry, ForwardInfo};
-
 mod reporter;
 mod hostname;
 mod access_id;
+mod country;
 
 const LOCALHOST: &str = "localhost";
 const FORWARD_SERVER: &str = "rustdesk.ntsports.tech";
+const FORWARD_JP_SERVER: &str = "jpm.holomotion.tech";
 const FORWARD_SECRET: &str = "hm#CD888";
 const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
 
@@ -21,12 +23,26 @@ const NIL_MAC_ADDRESS: &str = "00:00:00:00:00:00";
 async fn main() -> Result<()> {
     let mac_address_result = get_mac_address()?;
     if let Some(mac_address) = mac_address_result {
-        let ssh_cli = client::Client::new(LOCALHOST, 22, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
-        let cockpit_cli = client::Client::new(LOCALHOST, 9090, FORWARD_SERVER, 0, Some(FORWARD_SECRET)).await?;
+        // apply the default settings
+        let mut auto_selected_country = FORWARD_SERVER;
+        let mut current_country_code = "CN".to_string();
+
+        // auto select country endpoint
+        let current_country_result = get_current_country().await;
+        if let Ok(current_country) = current_country_result {
+            current_country_code = current_country.country.clone();
+            if current_country.country != "CN" {
+                auto_selected_country = FORWARD_JP_SERVER;
+            }
+        }
+
+        let ssh_cli = client::Client::new(LOCALHOST, 22, auto_selected_country, 0, Some(FORWARD_SECRET)).await?;
+        let cockpit_cli = client::Client::new(LOCALHOST, 9090, auto_selected_country, 0, Some(FORWARD_SECRET)).await?;
         let all_mac_address_iter = MacAddressIterator::new()?;
         let all_mac_addresses = all_mac_address_iter.filter(|ma| ma.to_string() != NIL_MAC_ADDRESS).map(|ma| ma.to_string()).collect();
         // create forward info
         let forward_info = &ForwardInfo {
+            client_country: current_country_code,
             app_version: cargo_crate_version!().parse()?,
             hostname: hostname::get_hostname()?,
             access_id: access_id::get_access_id()?,
@@ -48,7 +64,7 @@ async fn main() -> Result<()> {
         forward_info.report().await?;
 
         let check_update = tokio::spawn(
-            timeout(Duration::from_secs(300),  check_update())
+            timeout(Duration::from_secs(300), check_update())
         );
         let ssh_forward = tokio::spawn(
             ssh_cli.listen()
@@ -65,7 +81,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn  check_update()->Result<()> {
+async fn check_update() -> Result<()> {
     let check_update = github::Update::configure()
         .repo_owner("holomotion")
         .repo_name("forwarder")

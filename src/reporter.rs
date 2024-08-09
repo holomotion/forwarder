@@ -13,6 +13,7 @@ pub struct ForwardEntry {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ForwardInfo {
+    pub client_country: String,
     pub app_version: String,
     pub mac_address: String,
     pub hostname: String,
