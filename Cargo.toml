@@ -4,7 +4,7 @@ version = "0.2.2"
 edition = "2021"
 
 [dependencies]
-bore-cli = "0.5"
+bore-cli = "0.6"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }
 anyhow = { version = "1" }
 mac_address = { version = "1" }
